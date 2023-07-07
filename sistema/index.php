@@ -169,7 +169,7 @@
 								<input type="text" name="txtDirEmpresa" class="form-control" value="<?php echo $dirEmpresa; ?>" id="txtDirEmpresa" placeholder="Dirreción de la Empresa" required>
 							</div>
 							<div class="form-group">
-								<label>IGV (%):</label>
+								<label>IGV/IVA (%):</label>
 								<input type="text" name="txtIgv" class="form-control" value="<?php echo $igv; ?>" id="txtIgv" placeholder="IGV de la Empresa" required>
 							</div>
 							<?php echo isset($alert) ? $alert : ''; ?>
@@ -214,7 +214,7 @@
 								<h6><?php echo $dirEmpresa; ?></h6>
 							</div>
 							<div class="form-group">
-								<strong>IGV (%):</strong>
+								<strong>IGV/IVA (%):</strong>
 								<h6><?php echo $igv; ?></h6>
 							</div>
 

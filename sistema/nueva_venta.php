@@ -48,7 +48,16 @@
                 </div>
             </div>
             <br>
+            <div class="row">
+                <div class="col-8"></div>
+                <div class="col-4">
+                    <strong>Subtotal:</strong> $<label for="" id="subtotal"></label><br>
+                    <strong>IGV/IVA:</strong> $<label for="" id="taxes"></label><br>
+                    <strong>Total:</strong> $<label for="" id="total"></label>
+                </div>
+            </div>
             <div class="row float-right">
+                <div id="billing_error" class="alert alert-danger" role="alert"></div>
                 <div id="acciones_venta" class="form-group">
                     <a href="#" class="btn btn-danger" id="btn_anular_venta">Anular</a>
                     <a href="#" class="btn btn-primary" id="btn_facturar_venta">

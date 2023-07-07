@@ -278,10 +278,6 @@ function validaPass() {
   $('.alertChangePass').html('<p style="color:blue;">Las contraseñas Coinciden.</p>');
   $('.alertChangePass').slideDown();
 }
-function generarPDF(cliente, factura) {
-  url = 'factura/generaFactura.php?cl=' + cliente + '&f=' + factura;
-  window.open(url, '_blank');
-}
 function del_product_detalle(correlativo) {
   var action = 'delProductoDetalle';
   var id_detalle = correlativo;

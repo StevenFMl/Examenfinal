@@ -3,10 +3,10 @@
 
 	<!-- Sidebar - Brand -->
 	<a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
-		<div class="sidebar-brand-icon rotate-n-15">
-			<img src="img/logo.jpg" class="img-thumbnail">
-		</div>
-		<div class="sidebar-brand-text mx-3">Vida Informático</div>
+		<!-- <div class="sidebar-brand-icon rotate-n-15">
+			<img src="img/.jpg" class="img-thumbnail">
+		</div> -->
+		<div class="sidebar-brand-text mx-3">ElectronicFix</div>
 	</a>
 
 	<!-- Divider -->

@@ -1,5 +1,15 @@
+var selectedClient = null;
+var configuration = {
+    igv:0
+};
+var billTotal = {
+    subtotal: 0,
+    taxes: 0,
+    total: 0
+};
 hideAlert('#selectedClient');
 hideAlert('#productAddedOK');
+hideAlert('#billing_error');
 function openProductsSelectionModal() {
     hideAlert('#created_client_ok');
     hideAlert('#created_client_error');
@@ -33,6 +43,26 @@ form.submit(function (e) {
     });
 });
 
+// Traer configuración del IGV/IVA
+function getConfiguration() {
+    $.ajax({
+        url: './api/controladores/configuracion.php',
+        type: 'GET',
+        dataType: 'JSON',
+        success: function (response) {
+            if (response.id) {
+                configuration.igv = parseFloat(response.igv) 
+            } else {
+                showAlert("#billing_error", "No se pudo cargar los datos del IGV/IVA")
+            }
+        },
+        error: function (error) {
+
+        }
+    });
+}
+getConfiguration();
+
 // buscar Cliente
 $('#dni_cliente').keyup(function (e) {
     e.preventDefault();
@@ -55,11 +85,11 @@ $('#dni_cliente').keyup(function (e) {
                 $('#tel_cliente').removeAttr('disabled');
                 $('#dir_cliente').removeAttr('disabled');
             } else {
-                var data = $.parseJSON(response);
-                $('#idcliente').val(data.idcliente);
-                $('#nom_cliente').val(data.nombre);
-                $('#tel_cliente').val(data.telefono);
-                $('#dir_cliente').val(data.direccion);
+                selectedClient = $.parseJSON(response);
+                $('#idcliente').val(selectedClient.idcliente);
+                $('#nom_cliente').val(selectedClient.nombre);
+                $('#tel_cliente').val(selectedClient.telefono);
+                $('#dir_cliente').val(selectedClient.direccion);
                 // ocultar boton Agregar
                 $('.btn_new_cliente').slideUp();
 
@@ -185,8 +215,13 @@ var saleDetailDataTable = $('#saleDetailTable').DataTable({
     ]
 })
 function updateSaleDetail() {
+    billTotal.total = 0
+    billTotal.subtotal = 0
+    billTotal.taxes = 0
     saleDetailDataTable.clear();
     var formatedShoppingCat = shoppingCartToAdd.map((product, index) => {
+        billTotal.total += product.total_price;
+        console.log(billTotal.total);
         return {
             code: product.codproducto,
             description: product.descripcion,
@@ -196,6 +231,13 @@ function updateSaleDetail() {
             actions: '<button type="button" class="btn btn-danger" onclick="removeItemFromCart(' + index + ')"><i class="fas fa-trash"></i> Eliminar</button>'
         }
     })
+    console.log(billTotal);
+    console.log(configuration.igv);
+    billTotal.taxes = billTotal.total * (configuration.igv / 100);
+    billTotal.subtotal = billTotal.total - billTotal.taxes;
+    $('#subtotal').text(billTotal.subtotal.toFixed(2));
+    $('#taxes').text(billTotal.taxes.toFixed(2));
+    $('#total').text(billTotal.total.toFixed(2));
     saleDetailDataTable.rows.add(formatedShoppingCat).draw();
     viewProcesar();
 }
@@ -210,28 +252,38 @@ function viewProcesar() {
         $('#btn_anular_venta').hide();
     }
 }
+// Generar PDF
+function generarPDF(cliente, factura) {
+    url = 'factura/generaFactura.php?cl=' + cliente + '&f=' + factura;
+    window.open(url, '_blank');
+}
 
 // facturar venta
 $('#btn_facturar_venta').click(function (e) {
     e.preventDefault();
+    if (!selectedClient) {
+        showAlert("#billing_error", "Debe seleccionar el cliente antes de finalizar la venta");
+        return;
+    }
+
     if (shoppingCartToAdd.length) {
         var action = 'createOrder';
-        var codcliente = $('#idcliente').val();
         $.ajax({
             url: './api/controladores/orders.php',
             type: 'POST',
             async: true,
-            data: { action: action, codcliente: codcliente, details: shoppingCartToAdd },
+            dataType: 'JSON',
+            data: { action: action, client: selectedClient, details: shoppingCartToAdd, billTotal },
             success: function (response) {
-
-                // if (response != 0) {
-                //     var info = JSON.parse(response);
-                //     //console.log(info);
-                //     generarPDF(info.codcliente, info.nofactura);
-                //     location.reload();
-                // } else {
-                //     console.log('no hay dato');
-                // }
+                if (response.id) {
+                    $("#btn_facturar_venta").text("Generando pdf ...")
+                    setTimeout(function() {
+                        generarPDF(selectedClient.idcliente, response.id);
+                        location.reload();
+                    }, 2000)
+                } else {
+                    console.log('no hay dato');
+                }
             },
             error: function (error) {
 
